@@ -92,12 +92,16 @@ class ProblemData(models.Model):
 
     def __init__(self, *args, **kwargs):
         super(ProblemData, self).__init__(*args, **kwargs)
-        self.__original_zipfile = self.zipfile
+        self.__original_zipfile = self.zipfile.name
 
     def save(self, *args, **kwargs):
-        if self.zipfile != self.__original_zipfile:
-            self.__original_zipfile.delete(save=False)
-        return super(ProblemData, self).save(*args, **kwargs)
+        if self.__original_zipfile and self.zipfile.name != self.__original_zipfile:
+            # Delete through the storage: FieldFile.delete() would also reset
+            # self.zipfile, dropping the file that replaces it.
+            problem_data_storage.delete(self.__original_zipfile)
+        result = super(ProblemData, self).save(*args, **kwargs)
+        self.__original_zipfile = self.zipfile.name
+        return result
 
     def has_yml(self):
         return problem_data_storage.exists('%s/init.yml' % self.problem.code)
