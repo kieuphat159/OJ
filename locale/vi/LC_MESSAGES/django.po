@@ -7083,6 +7083,115 @@ msgstr "Quản trị hồ sơ"
 msgid "Check all"
 msgstr "Chọn tất cả"
 
+#: templates/problem/polygon-import-media.html
+msgid "This zip has no problem.xml. Upload the package downloaded from Polygon (Packages tab)."
+msgstr "File zip này không có problem.xml. Hãy tải lên package tải về từ Polygon (tab Packages)."
+
+msgid "problem.xml could not be read."
+msgstr "Không đọc được problem.xml."
+
+msgid "The package has no tests."
+msgstr "Package không có test nào."
+
+msgid "Test files are missing from the package (tests {0}). Download the 'full' package, which contains generated tests."
+msgstr "Package thiếu file test (test {0}). Hãy tải package 'full', loại có chứa cả các test sinh tự động."
+
+msgid "Reading package..."
+msgstr "Đang đọc package..."
+
+msgid "Imported from Polygon. Review the form before saving."
+msgstr "Đã nhập từ Polygon. Hãy kiểm tra lại form trước khi lưu."
+
+msgid "Check these before saving:"
+msgstr "Kiểm tra các mục sau trước khi lưu:"
+
+msgid "The package has no statement; write the description yourself."
+msgstr "Package không có đề bài; hãy tự viết phần mô tả."
+
+msgid "The statement was imported in '{0}'. Other languages in the package: {1}."
+msgstr "Đề bài được nhập từ bản '{0}'. Các ngôn ngữ khác trong package: {1}."
+
+msgid "The package contains a tutorial; it was not imported (add it as an editorial)."
+msgstr "Package có lời giải (tutorial) nhưng không được nhập; hãy thêm vào phần editorial."
+
+msgid "Image '{0}' could not be uploaded; upload it in the description editor."
+msgstr "Không tải lên được ảnh '{0}'; hãy tải ảnh lên trong trình soạn thảo mô tả."
+
+msgid "Image '{0}' is referenced by the statement but missing from the package."
+msgstr "Đề bài dùng ảnh '{0}' nhưng package không có file này."
+
+msgid "After creating the problem, open its Test data page and import the same package to add tests and the checker."
+msgstr "Sau khi tạo bài, mở trang Test data của bài và nhập lại chính package này để thêm test và checker."
+
+msgid "Points is not part of the package; set it yourself."
+msgstr "Package không có điểm của bài; hãy tự nhập."
+
+msgid "This package gives points per test or subtask; make sure 'partial' is enabled on the problem."
+msgstr "Package chấm điểm theo test hoặc subtask; hãy bật 'partial' cho bài."
+
+msgid "Existing test cases are marked for deletion."
+msgstr "Các test hiện có đã được đánh dấu xoá."
+
+msgid "This problem already has a test data zip. Tick 'Clear' next to it and save first, then import the package."
+msgstr "Bài đã có file zip test. Hãy tick 'Clear' cạnh file đó và lưu trước, sau đó mới nhập package."
+
+msgid "Your browser cannot attach files to the form. Use a recent browser."
+msgstr "Trình duyệt của bạn không gắn được file vào form. Hãy dùng trình duyệt mới hơn."
+
+msgid "{0} tests, {1} subtasks"
+msgstr "{0} test, {1} subtask"
+
+msgid "Checker: {0}"
+msgstr "Checker: {0}"
+
+msgid "Grader: {0}"
+msgstr "Grader: {0}"
+
+msgid "Testsets '{0}' were ignored; only '{1}' was imported."
+msgstr "Đã bỏ qua các testset '{0}'; chỉ nhập testset '{1}'."
+
+msgid "Groups have no points, so each test was imported as a separate case worth 1 point."
+msgstr "Các group không có điểm nên mỗi test được nhập thành một test riêng, 1 điểm."
+
+msgid "Points must be integers here: {0} was rounded to {1}."
+msgstr "Điểm ở đây phải là số nguyên: {0} đã được làm tròn thành {1}."
+
+msgid "Tests of group '{0}' are not contiguous in Polygon; they were moved together into one batch."
+msgstr "Các test của group '{0}' không liền nhau trong Polygon; chúng đã được gom lại thành một batch."
+
+msgid "Group '{0}' depends on {1}. Dependencies between subtasks are not supported here and were dropped."
+msgstr "Group '{0}' phụ thuộc vào {1}. Trang này chưa hỗ trợ phụ thuộc giữa các subtask nên phần này đã bị bỏ."
+
+msgid "The package has no checker; the standard checker is used."
+msgstr "Package không có checker; dùng checker standard."
+
+msgid "The checker type is '{0}', not testlib; check it carefully."
+msgstr "Checker có kiểu '{0}', không phải testlib; hãy kiểm tra kỹ."
+
+msgid "Checker source '{0}' is not a .cpp file in the package; the standard checker is used."
+msgstr "Mã nguồn checker '{0}' không phải file .cpp trong package; dùng checker standard."
+
+msgid "Interactor source '{0}' is not a .cpp file in the package; set up the interactor yourself."
+msgstr "Mã nguồn interactor '{0}' không phải file .cpp trong package; hãy tự thiết lập interactor."
+
+msgid "The package has several grader files; only {0} and {1} were used."
+msgstr "Package có nhiều file grader; chỉ dùng {0} và {1}."
+
+msgid "The package has a grader but no header file; set up the grader yourself."
+msgstr "Package có grader nhưng không có file header; hãy tự thiết lập grader."
+
+msgid "File input/output ({0}, {1}) cannot be combined with this grader and was ignored."
+msgstr "Không thể dùng đọc/ghi file ({0}, {1}) với grader này nên đã bỏ qua."
+
+msgid "Only one of input/output uses a file ({0}, {1}); the judge needs both, so standard IO was kept."
+msgstr "Chỉ một trong input/output dùng file ({0}, {1}); judge cần cả hai nên vẫn giữ nhập/xuất chuẩn."
+
+msgid "Import from Polygon package"
+msgstr "Nhập từ package Polygon"
+
+msgid "Fills the form from a package downloaded from polygon.codeforces.com."
+msgstr "Tự điền form từ package tải về từ polygon.codeforces.com."
+
 #~ msgid "You may not be part of more than {count} public organizations."
 #~ msgstr ""
 #~ "Bạn không thể là thành viên của nhiều hơn {count} tổ chức công khai."

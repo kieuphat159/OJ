@@ -1,0 +1,55 @@
+{# Scripts and translated messages for importing a Codeforces Polygon package. #}
+<script type="text/javascript" src="{{ static('claoj/jszip/jszip.min.js') }}"></script>
+<script type="text/javascript" src="{{ static('claoj/polygon-import.js') }}"></script>
+<script type="text/javascript">
+    window.POLYGON_IMPORT_MESSAGES = {
+        noProblemXml: {{ _('This zip has no problem.xml. Upload the package downloaded from Polygon (Packages tab).')|json|safe }},
+        badProblemXml: {{ _('problem.xml could not be read.')|json|safe }},
+        noTests: {{ _('The package has no tests.')|json|safe }},
+        missingTests: {{ _("Test files are missing from the package (tests {0}). Download the 'full' package, which contains generated tests.")|json|safe }},
+        reading: {{ _('Reading package...')|json|safe }},
+        done: {{ _('Imported from Polygon. Review the form before saving.')|json|safe }},
+        warningsTitle: {{ _('Check these before saving:')|json|safe }},
+        noStatement: {{ _('The package has no statement; write the description yourself.')|json|safe }},
+        otherLanguages: {{ _("The statement was imported in '{0}'. Other languages in the package: {1}.")|json|safe }},
+        tutorial: {{ _('The package contains a tutorial; it was not imported (add it as an editorial).')|json|safe }},
+        imageUploadFailed: {{ _("Image '{0}' could not be uploaded; upload it in the description editor.")|json|safe }},
+        imageMissing: {{ _("Image '{0}' is referenced by the statement but missing from the package.")|json|safe }},
+        nextStep: {{ _('After creating the problem, open its Test data page and import the same package to add tests and the checker.')|json|safe }},
+        fillPoints: {{ _('Points is not part of the package; set it yourself.')|json|safe }},
+        partialHint: {{ _("This package gives points per test or subtask; make sure 'partial' is enabled on the problem.")|json|safe }},
+        casesReplaced: {{ _('Existing test cases are marked for deletion.')|json|safe }},
+        existingZip: {{ _("This problem already has a test data zip. Tick 'Clear' next to it and save first, then import the package.")|json|safe }},
+        noFileApi: {{ _('Your browser cannot attach files to the form. Use a recent browser.')|json|safe }},
+        summaryTests: {{ _('{0} tests, {1} subtasks')|json|safe }},
+        summaryChecker: {{ _('Checker: {0}')|json|safe }},
+        summaryGrader: {{ _('Grader: {0}')|json|safe }},
+        warnings: {
+            otherTestsets: {{ _("Testsets '{0}' were ignored; only '{1}' was imported.")|json|safe }},
+            groupsUnscored: {{ _('Groups have no points, so each test was imported as a separate case worth 1 point.')|json|safe }},
+            pointsRounded: {{ _('Points must be integers here: {0} was rounded to {1}.')|json|safe }},
+            groupReordered: {{ _("Tests of group '{0}' are not contiguous in Polygon; they were moved together into one batch.")|json|safe }},
+            groupDependencies: {{ _("Group '{0}' depends on {1}. Dependencies between subtasks are not supported here and were dropped.")|json|safe }},
+            noChecker: {{ _('The package has no checker; the standard checker is used.')|json|safe }},
+            checkerNotTestlib: {{ _("The checker type is '{0}', not testlib; check it carefully.")|json|safe }},
+            checkerMissing: {{ _("Checker source '{0}' is not a .cpp file in the package; the standard checker is used.")|json|safe }},
+            interactorMissing: {{ _("Interactor source '{0}' is not a .cpp file in the package; set up the interactor yourself.")|json|safe }},
+            multipleGraders: {{ _('The package has several grader files; only {0} and {1} were used.')|json|safe }},
+            graderUnsupported: {{ _('The package has a grader but no header file; set up the grader yourself.')|json|safe }},
+            fileIoIgnored: {{ _('File input/output ({0}, {1}) cannot be combined with this grader and was ignored.')|json|safe }},
+            fileIoPartial: {{ _('Only one of input/output uses a file ({0}, {1}); the judge needs both, so standard IO was kept.')|json|safe }},
+        },
+    };
+    // gettext output arrives HTML-escaped; the messages are shown with .text().
+    (function decode(obj) {
+        var el = document.createElement('textarea');
+        Object.keys(obj).forEach(function (key) {
+            if (typeof obj[key] === 'object') {
+                decode(obj[key]);
+            } else {
+                el.innerHTML = obj[key];
+                obj[key] = el.value;
+            }
+        });
+    })(window.POLYGON_IMPORT_MESSAGES);
+</script>

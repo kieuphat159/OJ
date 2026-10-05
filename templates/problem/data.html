@@ -5,7 +5,7 @@
     {% include "leave-warning.html" %}
     <script type="text/javascript" src="{{ static('libs/jquery-sortable.js') }}"></script>
     <script type="text/javascript" src="{{ static('libs/featherlight/featherlight.min.js') }}"></script>
-    <script type="text/javascript" src="{{ static('claoj/jszip/jszip.min.js') }}"></script>
+    {% include "problem/polygon-import-media.html" %}
     <script type="text/javascript">
         window.valid_files = {{ valid_files_json }}.sort();
 
@@ -496,6 +496,145 @@
             })
             $('form').dirty('setAsClean');
         }).change();
+    </script>
+    <script type="text/javascript">
+        // Import tests, checker and grader from a Codeforces Polygon package.
+        $(function () {
+            var messages = window.POLYGON_IMPORT_MESSAGES;
+            var format = PolygonPackage.format;
+            var $total = $('#id_cases-TOTAL_FORMS');
+            var $zipfile = $('#id_problem-data-zipfile');
+            var $result = $('<div>', {id: 'polygon-import-result', style: 'display: none; margin-top: 0.5em;'});
+
+            $('<label>', {'class': 'button secondary', style: 'display: inline-table; margin: 0.5em 0 0 0.5em;'})
+                .append($('<i>', {'class': 'fa fa-file-import'}), ' ' + {{ _('Import from Polygon package')|json|safe }})
+                .append($('<input>', {type: 'file', id: 'polygon-package', accept: '.zip,application/zip',
+                                      style: 'display: none;'}))
+                .appendTo($zipfile.parent());
+            $result.appendTo($zipfile.parent());
+
+            function show(cls, lines) {
+                $result.attr('class', 'alert ' + cls).empty().show();
+                lines.forEach(function (line) {
+                    if (Array.isArray(line)) {
+                        var $ul = $('<ul>').appendTo($result);
+                        line.forEach(function (item) {
+                            $('<li>').text(item).appendTo($ul);
+                        });
+                    } else if (line) {
+                        $('<p>').text(line).appendTo($result);
+                    }
+                });
+            }
+
+            // Put a generated file into a <input type="file">.
+            function attach(input, blob, name) {
+                var transfer = new DataTransfer();
+                transfer.items.add(new File([blob], name));
+                input.files = transfer.files;
+            }
+
+            function warningText(w) {
+                return format.apply(null, [messages.warnings[w.key] || w.key].concat(w.args));
+            }
+
+            function addRow(row) {
+                $('a#add-case-row').click();
+                var i = parseInt($total.val()) - 1;
+                $('#id_cases-' + i + '-type').val(row.type).change();
+                if (row.type === 'C') {
+                    $('#id_cases-' + i + '-input_file').append(new Option(row.input, row.input, true, true)).change();
+                    $('#id_cases-' + i + '-output_file').append(new Option(row.output, row.output, true, true)).change();
+                }
+                if (row.points !== undefined)
+                    $('#id_cases-' + i + '-points').val(row.points);
+            }
+
+            function applyChecker(checker) {
+                var $checker = $('#id_problem-data-checker');
+                $checker.val(checker.checker).change();
+                if (checker.file) {
+                    attach($('#id_problem-data-custom_checker')[0], checker.file.blob, checker.file.name);
+                    $('#id_problem-data-checker_type').val(checker.args.type).change();
+                }
+                if (checker.args && checker.args.precision)
+                    $checker.parent().find('input[type=number]').val(checker.args.precision);
+                $('#id_problem-data-checker_args').val(checker.args ? JSON.stringify(checker.args) : '');
+            }
+
+            function applyGrader(grader) {
+                $('#id_problem-data-grader').val(grader.grader).change();
+                if (grader.files.grader)
+                    attach($('#id_problem-data-custom_grader')[0], grader.files.grader.blob, grader.files.grader.name);
+                if (grader.files.header)
+                    attach($('#id_problem-data-custom_header')[0], grader.files.header.blob, grader.files.header.name);
+                if (grader.args.io_method === 'file') {
+                    $('#id_problem-data-io_method').val('file').change();
+                    $('#id_problem-data-io_input_file').val(grader.args.io_input_file).change();
+                    $('#id_problem-data-io_output_file').val(grader.args.io_output_file).change();
+                } else if (grader.grader === 'standard') {
+                    $('#id_problem-data-io_method').val('standard').change();
+                }
+                if (grader.grader !== 'standard')
+                    $('#id_problem-data-grader_args').val(JSON.stringify(grader.args));
+            }
+
+            $('#polygon-package').change(function () {
+                var file = this.files[0];
+                this.value = '';
+                if (!file)
+                    return;
+                if (typeof DataTransfer === 'undefined') {
+                    show('alert-danger', [messages.noFileApi]);
+                    return;
+                }
+                // Replacing an existing zip in the same save loses the new file
+                // (ProblemData.save deletes the old one through the instance),
+                // so the old data has to be cleared in a separate save first.
+                if ($('#problem-data-zipfile-clear_id').length) {
+                    show('alert-danger', [messages.existingZip]);
+                    return;
+                }
+                show('alert-info', [messages.reading]);
+
+                var pkg;
+                PolygonPackage.load(file, messages).then(function (loaded) {
+                    pkg = loaded;
+                    return pkg.testData(messages);
+                }).then(function (data) {
+                    var notes = [];
+                    // Replace whatever test data the problem had.
+                    // Only rows already in the table; new rows are cloned from the hidden
+                    // extra row, which must stay unchecked.
+                    var $existing = $('#case-table tbody:first tr').find('input[name$=DELETE]');
+                    if ($existing.length) {
+                        $existing.prop('checked', true);
+                        notes.push(messages.casesReplaced);
+                    }
+                    attach($zipfile[0], data.zip, (pkg.shortName || 'tests') + '-polygon.zip');
+                    window.valid_files = data.files;
+
+                    data.rows.forEach(addRow);
+                    applyChecker(data.checker);
+                    applyGrader(data.grader);
+
+                    var batches = data.rows.filter(function (r) { return r.type === 'S'; }).length;
+                    var cases = data.rows.filter(function (r) { return r.type === 'C'; }).length;
+                    var summary = [
+                        format(messages.summaryTests, cases, batches),
+                        format(messages.summaryChecker, data.checker.polygonName ?
+                            data.checker.polygonName + ' → ' + data.checker.checker : data.checker.checker),
+                        format(messages.summaryGrader, data.grader.grader),
+                    ];
+                    if (pkg.isScored())
+                        notes.push(messages.partialHint);
+                    notes = notes.concat(data.warnings.map(warningText));
+                    show('alert-success', [messages.done, summary, notes.length ? messages.warningsTitle : '', notes]);
+                }).catch(function (err) {
+                    show('alert-danger', [err.message || String(err)]);
+                });
+            });
+        });
     </script>
 {% endblock %}
 

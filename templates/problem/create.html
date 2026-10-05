@@ -1,7 +1,121 @@
 {% extends "problem/editor.html" %}
 
+{% block js_media %}
+    {{ super() }}
+    {% include "problem/polygon-import-media.html" %}
+    <script type="text/javascript">
+        $(function () {
+            var messages = window.POLYGON_IMPORT_MESSAGES;
+            var format = PolygonPackage.format;
+            var $result = $('#polygon-import-result');
+            var preferred = ['vietnamese', 'english'];
+
+            function show(cls, lines) {
+                $result.attr('class', 'alert ' + cls).empty().show();
+                lines.forEach(function (line) {
+                    if (Array.isArray(line)) {
+                        var $ul = $('<ul>').appendTo($result);
+                        line.forEach(function (item) {
+                            $('<li>').text(item).appendTo($ul);
+                        });
+                    } else {
+                        $('<p>').text(line).appendTo($result);
+                    }
+                });
+            }
+
+            function setDescription(markdown) {
+                var $textarea = $('#id_description');
+                $textarea.val(markdown);
+                // The martor editor keeps its own copy of the text.
+                if (window.ace && document.getElementById('martor-description'))
+                    ace.edit('martor-description').setValue(markdown, -1);
+            }
+
+            // Upload statement images through the description editor's uploader.
+            function uploadImage(image) {
+                if (!image.file)
+                    return Promise.resolve({path: image.path, error: format(messages.imageMissing, image.path)});
+                return image.file.async('blob').then(function (blob) {
+                    var data = new FormData();
+                    data.append('markdown-image-upload', blob, image.path.split('/').pop());
+                    return $.ajax({
+                        url: '{{ url('martor_image_uploader') }}', type: 'POST', data: data,
+                        processData: false, contentType: false, dataType: 'json',
+                    });
+                }).then(function (response) {
+                    if (response && response.link)
+                        return {path: image.path, link: response.link};
+                    return {path: image.path, error: format(messages.imageUploadFailed, image.path)};
+                }, function () {
+                    return {path: image.path, error: format(messages.imageUploadFailed, image.path)};
+                });
+            }
+
+            $('#polygon-package').change(function () {
+                var file = this.files[0];
+                this.value = '';
+                if (!file)
+                    return;
+                show('alert-info', [messages.reading]);
+
+                var pkg, fields, notes = [];
+                PolygonPackage.load(file, messages).then(function (loaded) {
+                    pkg = loaded;
+                    fields = pkg.problemFields(preferred);
+                    return pkg.statement(preferred);
+                }).then(function (statement) {
+                    if (!statement) {
+                        notes.push(messages.noStatement);
+                        return null;
+                    }
+                    if (statement.otherLanguages.length)
+                        notes.push(format(messages.otherLanguages, statement.language, statement.otherLanguages.join(', ')));
+                    if (statement.tutorial)
+                        notes.push(messages.tutorial);
+                    if (!fields.name)
+                        fields.name = statement.name;
+                    return Promise.all(statement.images.map(uploadImage)).then(function (uploads) {
+                        var markdown = statement.markdown;
+                        uploads.forEach(function (u) {
+                            if (u.link)
+                                markdown = markdown.split('](' + u.path + ')').join('](' + u.link + ')');
+                            else
+                                notes.push(u.error);
+                        });
+                        return markdown;
+                    });
+                }).then(function (markdown) {
+                    $('#id_code').val(fields.code).change();
+                    $('#id_name').val(fields.name).change();
+                    if (fields.timeLimit !== null)
+                        $('#id_time_limit').val(fields.timeLimit).change();
+                    if (fields.memoryLimit !== null)
+                        $('#id_memory_limit').val(fields.memoryLimit).change();
+                    $('#id_partial').prop('checked', fields.partial).change();
+                    if (markdown)
+                        setDescription(markdown);
+
+                    notes.push(messages.fillPoints);
+                    show('alert-success', [messages.done, messages.warningsTitle, notes, messages.nextStep]);
+                }).catch(function (err) {
+                    show('alert-danger', [err.message || String(err)]);
+                });
+            });
+        });
+    </script>
+{% endblock %}
+
 {% block body %}
 <div>
+    <div class="polygon-import" style="margin-top: 1em;">
+        <label class="button secondary" style="display: inline-block;">
+            <i class="fa fa-file-import"></i> {{ _('Import from Polygon package') }}
+            <input type="file" id="polygon-package" accept=".zip,application/zip" style="display: none;">
+        </label>
+        <span class="helptext">{{ _('Fills the form from a package downloaded from polygon.codeforces.com.') }}</span>
+        <div id="polygon-import-result" style="display: none; margin-top: 0.5em;"></div>
+    </div>
     <form action="" method="post" class="form-area" enctype="multipart/form-data" style="margin-top: 1em; display: flex; justify-content: center; flex-direction: column;">
         {% csrf_token %}
         <table class="django-as-table">{{ form.as_table() }}</table>
