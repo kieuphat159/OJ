@@ -9,7 +9,7 @@ from random import randrange
 
 from django.conf import settings
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
-from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
+from django.core.exceptions import ObjectDoesNotExist, PermissionDenied, ValidationError
 from django.db import transaction
 from django.db.models import BooleanField, Case, CharField, Count, F, FilteredRelation, Prefetch, Q, When
 from django.db.models.functions import Coalesce
@@ -23,20 +23,21 @@ from django.utils.functional import cached_property
 from django.utils.html import escape, format_html
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _, gettext_lazy
-from django.views.generic import CreateView, ListView, UpdateView, View
+from django.views.generic import CreateView, FormView, ListView, UpdateView, View
 from django.views.generic.base import TemplateResponseMixin
 from django.views.generic.detail import SingleObjectMixin
 from reversion import revisions
 
 from judge.comments import CommentedDetailView
-from judge.forms import LanguageLimitFormSet, ProblemCloneForm, ProblemEditForm, ProblemSubmitForm, \
-    ProposeProblemSolutionFormSet
+from judge.forms import LanguageLimitFormSet, ProblemCloneForm, ProblemEditForm, ProblemImportPolygonForm, \
+    ProblemSubmitForm, ProposeProblemSolutionFormSet
 from judge.models import ContestSubmission, Judge, Language, Problem, ProblemGroup, \
     ProblemTranslation, ProblemType, RuntimeVersion, Solution, Submission, SubmissionSource
 from judge.pdf_problems import DefaultPdfMaker, HAS_PDF
 from judge.template_context import misc_config
 from judge.utils.diggpaginator import DiggPaginator
 from judge.utils.opengraph import generate_opengraph
+from judge.utils.polygon import PolygonImportError, import_polygon_package
 from judge.utils.problems import contest_attempted_ids, contest_completed_ids, hot_problems, user_attempted_ids, \
     user_completed_ids
 from judge.utils.strings import safe_float_or_none, safe_int_or_none
@@ -864,6 +865,36 @@ class ProblemCreate(PermissionRequiredMixin, TitleMixin, CreateView):
         initial['authors'] = self.request.user
         initial['partial'] = True
         return initial
+
+
+class ProblemImportPolygon(PermissionRequiredMixin, TitleMixin, FormView):
+    template_name = 'problem/import-polygon.html'
+    form_class = ProblemImportPolygonForm
+    permission_required = 'judge.add_problem'
+
+    def get_title(self):
+        return _('Import problem from Polygon')
+
+    def get_content_title(self):
+        return _('Import problem from Polygon')
+
+    def form_valid(self, form):
+        data = form.cleaned_data
+        try:
+            with revisions.create_revision(atomic=True):
+                problem, warnings = import_polygon_package(
+                    data['package'], data['code'] or None, points=data['points'], group=data['group'],
+                    types=data['types'], author=self.request.user.profile,
+                    statement_language=data['statement_language'] or None,
+                )
+                revisions.set_comment(_('Imported from Polygon'))
+                revisions.set_user(self.request.user)
+        except (PolygonImportError, ValidationError) as e:
+            form.add_error(None, e.messages if isinstance(e, ValidationError) else str(e))
+            return self.form_invalid(form)
+        # A fresh form, so the page is ready for the next package.
+        return self.render_to_response(self.get_context_data(form=self.form_class(), problem=problem,
+                                                             warnings=warnings))
 
 
 class ProblemEdit(ProblemMixin, TitleMixin, UpdateView):

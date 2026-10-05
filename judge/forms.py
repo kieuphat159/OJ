@@ -21,7 +21,7 @@ from django.utils.translation import gettext_lazy as _, ngettext_lazy
 
 from django_ace import AceWidget
 from judge.models import BlogPost, Contest, ContestAnnouncement, ContestProblem, Language, LanguageLimit, \
-    Organization, Problem, Profile, Solution, Submission, WebAuthnCredential
+    Organization, Problem, ProblemGroup, ProblemType, Profile, Solution, Submission, WebAuthnCredential
 from judge.utils.captcha import TurnstileField
 from judge.utils.subscription import newsletter_id
 from judge.widgets import HeavyPreviewPageDownWidget, HeavySelect2MultipleWidget, HeavySelect2Widget, MartorWidget, \
@@ -497,6 +497,29 @@ class ProblemCloneForm(Form):
     def clean_code(self):
         code = self.cleaned_data['code']
         if Problem.objects.filter(code=code).exists():
+            raise ValidationError(_('Problem with code already exists.'))
+        return code
+
+
+class ProblemImportPolygonForm(Form):
+    package = forms.FileField(label=_('Polygon package'), validators=[FileExtensionValidator(['zip'])],
+                              help_text=_('The "full" package (zip) downloaded from the Packages tab on '
+                                          'polygon.codeforces.com.'),
+                              widget=forms.FileInput(attrs={'accept': '.zip,application/zip'}))
+    code = CharField(max_length=32, required=False, label=_('Problem code'),
+                     validators=[RegexValidator('^[a-z0-9_]+$', _('Problem code must be ^[a-z0-9_]+$'))],
+                     help_text=_('Leave empty to use the short name of the package.'))
+    points = forms.FloatField(label=_('Points'), min_value=0, initial=1)
+    group = forms.ModelChoiceField(ProblemGroup.objects.all(), label=_('Problem group'), widget=Select2Widget)
+    types = forms.ModelMultipleChoiceField(ProblemType.objects.all(), required=False, label=_('Problem types'),
+                                           widget=Select2MultipleWidget)
+    statement_language = CharField(max_length=50, required=False, label=_('Statement language'),
+                                   help_text=_('Polygon language used as the main statement, e.g. vietnamese. '
+                                               'Leave empty to prefer Vietnamese, then English.'))
+
+    def clean_code(self):
+        code = self.cleaned_data['code']
+        if code and Problem.objects.filter(code=code).exists():
             raise ValidationError(_('Problem with code already exists.'))
         return code
 

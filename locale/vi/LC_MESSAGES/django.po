@@ -7083,6 +7083,124 @@ msgstr "Quản trị hồ sơ"
 msgid "Check all"
 msgstr "Chọn tất cả"
 
+#: judge/utils/polygon.py judge/views/problem.py templates/problem/import-polygon.html
+msgid "pandoc is not installed on the server."
+msgstr "Máy chủ chưa cài pandoc."
+
+msgid "The package has no statement; write the description yourself."
+msgstr "Package không có đề bài; hãy tự viết phần mô tả."
+
+msgid "This zip has no problem.xml. Upload the package downloaded from Polygon (Packages tab)."
+msgstr "File zip này không có problem.xml. Hãy tải lên package tải về từ Polygon (tab Packages)."
+
+msgid "problem.xml could not be read."
+msgstr "Không đọc được problem.xml."
+
+msgid "The package has no tests."
+msgstr "Package không có test nào."
+
+msgid "The package has no checker; the standard checker is used."
+msgstr "Package không có checker; dùng checker standard."
+
+msgid "The package contains a tutorial; it was not imported (add it as an editorial)."
+msgstr "Package có lời giải (tutorial) nhưng không được nhập; hãy thêm vào phần editorial."
+
+msgid "The file is not a zip archive."
+msgstr "File này không phải file zip."
+
+msgid "Groups have no points, so each test was imported as a separate case worth 1 point."
+msgstr "Các group không có điểm nên mỗi test được nhập thành một test riêng, 1 điểm."
+
+msgid "A problem with code {0} already exists."
+msgstr "Đã có bài với mã {0}."
+
+msgid "The test data could not be compiled: {0}"
+msgstr "Không tạo được cấu hình test: {0}"
+
+msgid "Testsets '{0}' were ignored; only '{1}' was imported."
+msgstr "Đã bỏ qua các testset '{0}'; chỉ nhập testset '{1}'."
+
+msgid "Test files are missing from the package (tests {0}). Download the 'full' package, which contains generated tests."
+msgstr "Package thiếu file test (test {0}). Hãy tải package 'full', loại có chứa cả các test sinh tự động."
+
+msgid "The checker type is '{0}', not testlib; check it carefully."
+msgstr "Checker có kiểu '{0}', không phải testlib; hãy kiểm tra kỹ."
+
+msgid "Checker source '{0}' is not a .cpp file in the package; the standard checker is used."
+msgstr "Mã nguồn checker '{0}' không phải file .cpp trong package; dùng checker standard."
+
+msgid "The package has a grader but no header file; set up the grader yourself."
+msgstr "Package có grader nhưng không có file header; hãy tự thiết lập grader."
+
+msgid "File input/output ({0}, {1}) cannot be combined with this grader and was ignored."
+msgstr "Không thể dùng đọc/ghi file ({0}, {1}) với grader này nên đã bỏ qua."
+
+msgid "Points must be integers here: {0} was rounded to {1}."
+msgstr "Điểm ở đây phải là số nguyên: {0} đã được làm tròn thành {1}."
+
+msgid "Tests of group '{0}' are not contiguous in Polygon; they were moved together into one batch."
+msgstr "Các test của group '{0}' không liền nhau trong Polygon; chúng đã được gom lại thành một batch."
+
+msgid "Group '{0}' depends on {1}. Dependencies between subtasks are not supported here and were dropped."
+msgstr "Group '{0}' phụ thuộc vào {1}. Trang này chưa hỗ trợ phụ thuộc giữa các subtask nên phần này đã bị bỏ."
+
+msgid "Interactor source '{0}' is not a .cpp file in the package; set up the interactor yourself."
+msgstr "Mã nguồn interactor '{0}' không phải file .cpp trong package; hãy tự thiết lập interactor."
+
+msgid "Only one of input/output uses a file ({0}, {1}); the judge needs both, so standard IO was kept."
+msgstr "Chỉ một trong input/output dùng file ({0}, {1}); judge cần cả hai nên vẫn giữ nhập/xuất chuẩn."
+
+msgid "Image '{0}' is referenced by the statement but missing from the package."
+msgstr "Đề bài dùng ảnh '{0}' nhưng package không có file này."
+
+msgid "The statement in '{0}' was not imported: the site has no such language."
+msgstr "Đề bài bản '{0}' không được nhập vì site không có ngôn ngữ này."
+
+msgid "The package has several grader files; only {0} and {1} were used."
+msgstr "Package có nhiều file grader; chỉ dùng {0} và {1}."
+
+msgid "Polygon package"
+msgstr "Package Polygon"
+
+msgid "The \"full\" package (zip) downloaded from the Packages tab on polygon.codeforces.com."
+msgstr "Package \"full\" (file zip) tải về từ tab Packages trên polygon.codeforces.com."
+
+msgid "Leave empty to use the short name of the package."
+msgstr "Để trống để dùng tên ngắn (short name) của package."
+
+msgid "Problem group"
+msgstr "Nhóm bài"
+
+msgid "Statement language"
+msgstr "Ngôn ngữ đề bài"
+
+msgid "Polygon language used as the main statement, e.g. vietnamese. Leave empty to prefer Vietnamese, then English."
+msgstr "Ngôn ngữ trên Polygon dùng làm đề chính, ví dụ vietnamese. Để trống để ưu tiên tiếng Việt, rồi tiếng Anh."
+
+msgid "Import problem from Polygon"
+msgstr "Nhập bài từ Polygon"
+
+msgid "Imported from Polygon"
+msgstr "Nhập từ Polygon"
+
+msgid "Importing..."
+msgstr "Đang nhập..."
+
+msgid "Imported problem %(problem)s."
+msgstr "Đã nhập bài %(problem)s."
+
+msgid "View problem"
+msgstr "Xem bài"
+
+msgid "Check these before publishing:"
+msgstr "Kiểm tra các mục sau trước khi công khai bài:"
+
+msgid "Import"
+msgstr "Nhập"
+
+msgid "Import from Polygon"
+msgstr "Nhập từ Polygon"
+
 #~ msgid "You may not be part of more than {count} public organizations."
 #~ msgstr ""
 #~ "Bạn không thể là thành viên của nhiều hơn {count} tổ chức công khai."

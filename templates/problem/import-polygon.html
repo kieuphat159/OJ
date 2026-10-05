@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block js_media %}
+    {{ form.media.js }}
+    <script type="text/javascript">
+        $(function () {
+            // Importing can take a while for large packages.
+            $('#import-polygon-form').submit(function () {
+                $(this).find('button[type=submit]').prop('disabled', true)
+                    .html('<i class="fa fa-spinner fa-pulse"></i> {{ _('Importing...') }}');
+            });
+        });
+    </script>
+{% endblock %}
+
+{% block media %}
+    {{ form.media.css }}
+    <link rel="stylesheet" type="text/css" href="{{ static('ui_form.css') }}">
+{% endblock %}
+
+{% block body %}
+    {% if problem %}
+        <div class="alert alert-success" style="margin-top: 1em;">
+            <p>{{ _('Imported problem %(problem)s.', problem=problem.code) }}</p>
+            <p>
+                <a href="{{ url('problem_detail', problem.code) }}">{{ _('View problem') }}</a> |
+                <a href="{{ url('problem_edit', problem.code) }}">{{ _('Edit problem') }}</a> |
+                <a href="{{ url('problem_data', problem.code) }}">{{ _('Edit test data') }}</a>
+            </p>
+            {% if warnings %}
+                <p>{{ _('Check these before publishing:') }}</p>
+                <ul>
+                    {% for warning in warnings %}
+                        <li>{{ warning }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+    {% endif %}
+    <form id="import-polygon-form" action="" method="post" class="form-area" enctype="multipart/form-data"
+          style="margin-top: 1em; display: flex; justify-content: center; flex-direction: column;">
+        {% csrf_token %}
+        <table class="django-as-table">{{ form.as_table() }}</table>
+        <hr>
+        <div style="display: flex; justify-content: flex-end;">
+            <button type="submit" class="button">{{ _('Import') }}</button>
+        </div>
+    </form>
+{% endblock %}
